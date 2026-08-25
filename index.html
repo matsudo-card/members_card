@@ -127,14 +127,16 @@ function startCamera() {
         Quagga.start();
     });
 
-    Quagga.onDetected(function(result) {
+        Quagga.onDetected(function(result) {
         var code = result.codeResult.code;
         if (code && code.length === 13 && /^\d+$/.test(code)) {
             detectionHistory.push(code);
 
-            if (detectionHistory.length >= 5) {
-                var lastFive = detectionHistory.slice(-5);
-                var isAllMatch = lastFive.every(function(val) { return val === lastFive; });
+            // 【改善点】5回連続から「3回連続」に判定を少し優しくします。
+            // これにより、手ブレやLINEアプリが重い時でも、パッと一瞬で合格して登録が完了します。
+            if (detectionHistory.length >= 3) {
+                var lastThree = detectionHistory.slice(-3);
+                var isAllMatch = lastThree.every(function(val) { return val === lastThree[0]; });
 
                 if (isAllMatch) {
                     Quagga.stop();
@@ -145,7 +147,7 @@ function startCamera() {
             }
         }
     });
-}
+
 
 function saveManualCode() {
     var inputVal = document.getElementById('jan-input').value;
